@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  init:
+    image: alpine
+    entrypoint: /bin/sh -c "while [ true ] ; do chmod -vR 777 /directory; sleep 5 ; done"
+    container_name: mediainit
+    restart: "no"
+    volumes: 
+      - sites:/directory
+  drupal:
+    image: drupal:7.72-apache
+    ports:
+      - "7080:80"
+    volumes:
+    - sites:/var/www/html/sites
+    - ./:/var/www/html/sites/default/files/h5p/development/h5p-dictation/
+    - drupal-storage:/var/www/html
+  db:
+    image: mysql:5.7
+    volumes:
+      - db-storage:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+      MYSQL_DATABASE: drupal
+
+volumes:
+  drupal-storage:
+  db-storage:
+  sites:
